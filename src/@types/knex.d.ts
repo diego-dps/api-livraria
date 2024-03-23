@@ -22,9 +22,11 @@ declare module "knex/types/tables" {
         },
         Books: {
             ID: string;
+            name: string;
             Description: string;
             NumberOfPages: number;
             PublisherID: string;
+            ImageUrl: string;
             Category: string;
             created_at: Date;
         },
