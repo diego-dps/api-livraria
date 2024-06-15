@@ -19,10 +19,13 @@
     "@fastify/cookie": "^9.3.1",
     "@fastify/cors": "^9.0.1",
     "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/next": "^9.0.0",
     "bcrypt": "^5.1.1",
     "dotenv": "^16.4.4",
     "fastify": "^4.26.1",
+    "jsonwebtoken": "^9.0.2",
+    "jwt": "^0.2.0",
     "knex": "^3.1.0",
     "sqlite3": "^5.1.7",
     "zod": "^3.22.4"

@@ -31,9 +31,10 @@ export async function booksRoutes(app: FastifyInstance) {
             Category: z.string(),
             name: z.string()
         })
-    
+        console.log(request.body)
+
         const { Description, NumberOfPages, PublisherID, ImageUrl, Category, name } = createBookBodySchema.parse(request.body)
-    
+
         await knex('Books').insert({
             ID: randomUUID(),
             Description,
@@ -41,10 +42,10 @@ export async function booksRoutes(app: FastifyInstance) {
             PublisherID,
             ImageUrl,
             Category,
-            name, 
+            name,
             created_at: new Date()
         })
-    
+
         return reply.status(201).send()
     })
 }

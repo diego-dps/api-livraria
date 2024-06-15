@@ -3,7 +3,7 @@ import { knex } from "../database"
 import { randomUUID } from "crypto";
 import { z } from "zod"
 import bcrypt from 'bcrypt';
-
+import jwt from 'jsonwebtoken';
 
 export async function usersRoutes(app: FastifyInstance) {
 
@@ -31,12 +31,12 @@ export async function usersRoutes(app: FastifyInstance) {
             Password: z.string(),
             Role: z.enum(['client', 'admin'])
         })
-    
+
         const { FullName, Email, Password, Role } = createUserBodySchema.parse(request.body)
-    
+
         // Gere o hash da senha
         const hashedPassword = await bcrypt.hash(Password, 10);
-    
+
         await knex('Users').insert({
             ID: randomUUID(),
             FullName,
@@ -44,10 +44,46 @@ export async function usersRoutes(app: FastifyInstance) {
             Password: hashedPassword, // Armazene o hash da senha, não a senha em texto simples
             Role
         })
-    
+
         return reply.status(201).send()
     })
 
+
+    // //Private route
+
+
+    // app.get('/login/:id', async (request) => {
+
+    //     const id = request.params.id
+
+    //     const user = await knex('Users').where('ID', id).first()
+
+    //     return {user}
+    // }
+
+
+
+
+    function checkToken(request, reply, next){
+
+        const authHeader = request.headers['Authorization']
+        const token = authHeader && authHeader.split (``)[1] 
+        
+        if (!token) {
+            return reply.status(401).json({msg: 'Acesso negado'});
+        }
+
+        try {
+            const secret = process.env.SECRET
+            const decoded = jwt.verify(token, secret)
+            request.userId = decoded.id
+            next()
+        } catch (err) {
+            reply.status(401).json({msg: 'Acesso negado'});
+        }
+    }
+
+    
     app.post('/login', async (request, reply) => {
         const loginUserBodySchema = z.object({
             Email: z.string().email(),
@@ -70,6 +106,19 @@ export async function usersRoutes(app: FastifyInstance) {
             return
         }
 
-        return reply.status(200).send({ message: 'Login bem-sucedido' })
+
+        try {
+            const secret = process.env.SECRET
+
+            const token = jwt.sign(
+                {
+                    id: user.ID,
+
+                }, secret
+            )
+            return reply.status(200).send({ message: 'Login bem-sucedido', token })
+
+        } catch (err) { console.error(err) }
+
     })
 }
